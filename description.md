@@ -1,3 +1,32 @@
+# Table of contents
+
+- [Data Description](#data-description)
+  - [France stations and train lines](#france-stations-and-train-lines)
+    - [`transfers.txt`](#transferstxt)
+    - [`routes.txt`](#routestxt)
+    - [`stops.txt`](#stopstxt)
+    - [`calendar.txt`](#calendartxt)
+    - [`feed_info.txt`](#feed_infotxt)
+    - [`trips.txt`](#tripstxt)
+    - [`agency.txt`](#agencytxt)
+    - [`calendar_dates.txt`](#calendar_datestxt)
+    - [`stop_times.txt`](#stop_timestxt)
+  - [High-speed trian stations in France](#high-speed-trian-stations-in-france)
+    - [`gares-tgv.csv`](#gares-tgvcsv)
+  - [Saint-Etienne buses and tramways](#saint-etienne-buses-and-tramways)
+    - [`transfers.txt`](#transferstxt)
+    - [`routes.txt`](#routestxt)
+    - [`stops.txt`](#stopstxt)
+    - [`calendar.txt`](#calendartxt)
+    - [`trips.txt`](#tripstxt)
+    - [`agency.txt`](#agencytxt)
+    - [`calendar_dates.txt`](#calendar_datestxt)
+    - [`stop_times.txt`](#stop_timestxt)
+
+# Data Description
+
+## France stations and train lines
+
 ### `transfers.txt`
 
 | Property | Value |
@@ -146,6 +175,8 @@
 * `drop_off_type`:
 * `shape_dist_traveled`:
 
+## High-speed trian stations in France
+
 ### `gares-tgv.csv`
 
 | Property | Value |
@@ -162,6 +193,8 @@
 * `NOM_DEP`:
 * `Latitude`:
 * `Longitude`:
+
+## Saint-Etienne buses and tramways
 
 ### `transfers.txt`
 
