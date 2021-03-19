@@ -7,6 +7,7 @@ import argparse
 from urllib.request import urlretrieve
 
 
+
 def create_neo4j_container(cli):
     print('Create `neo4j_websem` container...')
     host_config = cli.create_host_config(port_bindings={7474: 7474, 7687: 7687})
@@ -20,7 +21,8 @@ def create_neo4j_container(cli):
 def setup_docker():
     print('Set up Neo4j for docker')
     client = docker.from_env()
-    cli = docker.APIClient(base_url='unix://var/run/docker.sock')
+    base_url = 'tcp://127.0.0.1:1234' if platform.system() == 'Windows' else 'unix://var/run/docker.sock'
+    cli = docker.APIClient(base_url=base_url)
     images_tags = [im.tags[0] if len(im.tags) > 0 else '' for im in client.images.list()]
     if not any('neo4j' in im for im in images_tags):
         print('No `neo4j` image detected, pull `neo4j:latest`...')
