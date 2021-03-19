@@ -1,33 +1,4 @@
-# Table of contents
-
-- [Data description](#data-description)
-  - [France stations and train lines](#france-stations-and-train-lines)
-    - [transfers.txt](#transferstxt)
-    - [routes.txt](#routestxt)
-    - [stops.txt](#stopstxt)
-    - [calendar.txt](#calendartxt)
-    - [feed_info.txt](#feed_infotxt)
-    - [trips.txt](#tripstxt)
-    - [agency.txt](#agencytxt)
-    - [calendar_dates.txt](#calendar_datestxt)
-    - [stop_times.txt](#stop_timestxt)
-  - [High-speed train stations in France](#high-speed-train-stations-in-france)
-    - [gares-tgv.csv](#gares-tgvcsv)
-  - [Saint-Etienne buses and tramways](#saint-etienne-buses-and-tramways)
-    - [transfers.txt](#transferstxt)
-    - [routes.txt](#routestxt)
-    - [stops.txt](#stopstxt)
-    - [calendar.txt](#calendartxt)
-    - [trips.txt](#tripstxt)
-    - [agency.txt](#agencytxt)
-    - [calendar_dates.txt](#calendar_datestxt)
-    - [stop_times.txt](#stop_timestxt)
-
-# Data description
-
-## France stations and train lines
-
-### transfers.txt
+### `transfers.txt`
 
 | Property | Value |
 |----------|-------|
@@ -42,7 +13,7 @@
 * `from_route_id`:
 * `to_route_id`:
 
-### routes.txt
+### `routes.txt`
 
 | Property | Value |
 |----------|-------|
@@ -60,7 +31,7 @@
 * `route_color`:
 * `route_text_color`:
 
-### stops.txt
+### `stops.txt`
 
 | Property | Value |
 |----------|-------|
@@ -78,7 +49,7 @@
 * `location_type`:
 * `parent_station`:
 
-### calendar.txt
+### `calendar.txt`
 
 | Property | Value |
 |----------|-------|
@@ -97,7 +68,7 @@
 * `start_date`:
 * `end_date`:
 
-### feed_info.txt
+### `feed_info.txt`
 
 | Property | Value |
 |----------|-------|
@@ -115,7 +86,7 @@
 * `conv_rev`:
 * `plan_rev`:
 
-### trips.txt
+### `trips.txt`
 
 | Property | Value |
 |----------|-------|
@@ -131,7 +102,7 @@
 * `block_id`:
 * `shape_id`:
 
-### agency.txt
+### `agency.txt`
 
 | Property | Value |
 |----------|-------|
@@ -145,7 +116,7 @@
 * `agency_timezone`:
 * `agency_lang`:
 
-### calendar_dates.txt
+### `calendar_dates.txt`
 
 | Property | Value |
 |----------|-------|
@@ -157,7 +128,7 @@
 * `date`:
 * `exception_type`:
 
-### stop_times.txt
+### `stop_times.txt`
 
 | Property | Value |
 |----------|-------|
@@ -175,9 +146,7 @@
 * `drop_off_type`:
 * `shape_dist_traveled`:
 
-## High-speed train stations in France
-
-### gares-tgv.csv
+### `gares-tgv.csv`
 
 | Property | Value |
 |----------|-------|
@@ -194,9 +163,7 @@
 * `Latitude`:
 * `Longitude`:
 
-## Saint-Etienne buses and tramways
-
-### transfers.txt
+### `transfers.txt`
 
 | Property | Value |
 |----------|-------|
@@ -209,7 +176,7 @@
 * `transfer_type`:
 * `min_transfer_time`:
 
-### routes.txt
+### `routes.txt`
 
 | Property | Value |
 |----------|-------|
@@ -225,7 +192,7 @@
 * `route_color`:
 * `route_text_color`:
 
-### stops.txt
+### `stops.txt`
 
 | Property | Value |
 |----------|-------|
@@ -239,7 +206,7 @@
 * `stop_lon`:
 * `location_type`:
 
-### calendar.txt
+### `calendar.txt`
 
 | Property | Value |
 |----------|-------|
@@ -258,7 +225,7 @@
 * `start_date`:
 * `end_date`:
 
-### trips.txt
+### `trips.txt`
 
 | Property | Value |
 |----------|-------|
@@ -275,7 +242,7 @@
 * `wheelchair_accessible`:
 * `bikes_allowed`:
 
-### agency.txt
+### `agency.txt`
 
 | Property | Value |
 |----------|-------|
@@ -291,7 +258,7 @@
 * `agency_phone`:
 * `agency_fare_url`:
 
-### calendar_dates.txt
+### `calendar_dates.txt`
 
 | Property | Value |
 |----------|-------|
@@ -303,7 +270,7 @@
 * `date`:
 * `exception_type`:
 
-### stop_times.txt
+### `stop_times.txt`
 
 | Property | Value |
 |----------|-------|
@@ -318,3 +285,4 @@
 * `stop_sequence`:
 * `pickup_type`:
 * `drop_off_type`:
+
