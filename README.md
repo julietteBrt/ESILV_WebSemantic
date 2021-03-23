@@ -2,60 +2,79 @@
 
 # Installation
 
-1. Clone this repos and create a python virtual environment
-```bash
-git clone https://github.com/charlyalizadeh/ESILV_WebSemantic
-cd ESILV_WebSemantic/
-python3 -m venv .venv
-source .venv/bin/avtivate # or for Windows .venv/Scripts/activate.bat
+Clone this repository and `cd` into it:
 ```
-2. Install the dependencies
-```bash
-pip install requirements.txt
+$ git clone https://github.com/charlyalizadeh/ESILV_WebSemantic
+$ cd ESILV_WebSemantic
 ```
 
-Next you need to setup Neo4j with the neosemantic plugin. If you have docker running using `python setup.py --docker` should do the work for you.
-If you want to setup Neo4j manually see the following instructions.
+## Fuseki
 
-## Setup Neo4j manually
+### Create the triplestore
 
-### Docker
+The following instructions explain how to install fuseki with docker. [(Install without docker)](https://jena.apache.org/documentation/fuseki2/#download-fuseki)
+1. Pull the docker image:
+```bash
+$ docker pull stain/jena-fuseki
+```
+2. Create a docker volume for data persistence:
+```bash
+$ docker run --name fuseki-data -v /fuseki busybox
+```
+3. Create the fuseki container (you can change the admin password if you like):
+```bash
+$ docker run -d --name fuseki -p 3030:3030 --volumes-from fuseki-data -e ADMIN_PASSWORD=pw stain/jena-fuseki
+```
+4. Enter the container and install `procps` (required to stop and restart the container without errors)
+```bash
+$ docker exec -it fuseki bash
+/jena-fuseki$ apt-get upgrade
+/jena-fuseki$ apt-get install -y --no-install-recommends procps
+```
+Now go on [http://localhost:3030](http://localhost:3030) and you should be able to access the fuseki web interface (user: *admin*, password: *pw*)
 
-1. Pull the Neo4j images
+### Import the data
+
+1. Unzip `gtfsintriples.zip`
 ```bash
-docker pull neo4j:latest
+$ unzip gtfsintriples.zip
 ```
-2. Create a container
+2. Create the `gtfs` database
+![add dataset](doc/adddataset.png)
+3. Upload `gtfsintriples.ttl` to the database (it can take a while):
+![upload dataset](doc/uploaddata.png)
+
+The fuseki triplestore is now configured to work with the flask application
+
+
+## Flask
+
+1. Create a [virtual environment](https://docs.python.org/3/tutorial/venv.html) and activate it:
 ```bash
-docker run --name neo4j_websem -p 7474:7474 -p 7687:7687 neo4j
+$ python3 -m venv .venv
+$ source .venv/bin/activate # On windows: .venv\Scripts\activate.bat
 ```
-3. Download Neosemantic, you can find the link [here](https://github.com/neo4j-labs/neosemantics/releases) or you can use `wget` to download it directly (at the time of writing the latest version is 4.2.0.0, you may want to update the link)
+2. Install the requirements
 ```bash
-wget https://github.com/neo4j-labs/neosemantics/releases/download/4.2.0.0/neosemantics-4.2.0.0.jar
+$ pip install -r requirements.txt
 ```
-4. Copy neosemantics in the plugins folder
-```bash
-docker cp neosemantics-4.2.0.0.jar neo4j_websem:/var/lib/neo4j/plugins
+3. Setup the environment variables
 ```
-5. Then modify the container neo4j configuration file by running the following commands
+# Linux and MacOS:
+$ export FLASK_APP=flaskr
+$ export FLASK_ENV=development
+
+# Windows cmd
+> set FLASK_APP=flaskr
+> set FLASK_ENV=development
+
+# Windows PowerShell
+> $env:FLASK_APP = "flaskr"
+> $env:FLASK_ENV = "development"
 ```
-docker cp neo4j_websem:/var/lib/neo4j/conf/neo4j.conf ./
-echo dbms.unmanaged_extension_classes=n10s.endpoint=/rdf >> neo4j.conf
-docker cp neo4j.conf neo4j_websem:/var/lib/neo4j/conf/neo4j.conf
+4. Run the flask app:
+```
+$ flask run
 ```
 
-### Local installation
-
-1. Download Neo4j, different downloads can be found [here](https://neo4j.com/download-center/)
-2. Download Neosemantic, you can find the link [here](https://github.com/neo4j-labs/neosemantics/releases) or you can use `wget` to download it directly (at the time of writing the latest version is 4.2.0.0, you may want to update the link)
-```bash
-wget https://github.com/neo4j-labs/neosemantics/releases/download/4.2.0.0/neosemantics-4.2.0.0.jar
-```
-3. Copy neosemantics in the plugins folder
-```bash
-cp neosemantics-4.2.0.0.jar <NEO_HOME>/plugins/
-```
-4. Add the following line to `<NEO_HOME>/conf/neo4j.conf`
-```
-dbms.unmanaged_extension_classes=n10s.endpoint=/rdf
-```
+You should be able to access our app on [http://localhost:5000/](http://localhost:5000/)

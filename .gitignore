@@ -1,2 +1,5 @@
 .venv
 data/
+gtfsintriples.ttl
+SNCF_GTFS.zip
+__pycache__
