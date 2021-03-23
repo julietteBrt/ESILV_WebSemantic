@@ -14,3 +14,10 @@ def get_distance(point1, point2):
     a = sin(dlat / 2)**2 + cos(point1[0]) * cos(point2[0]) * sin(dlon / 2)**2
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
     return R * c * 1000
+
+def get_bounds(points):
+    lats = [p[0] for p in points]
+    longs = [p[1] for p in points]
+    bound_sw = (min(lats), min(longs))
+    bound_ne = (max(lats), max(longs))
+    return (bound_sw, bound_ne)
