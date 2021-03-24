@@ -78,3 +78,7 @@ $ flask run
 ```
 
 You should be able to access our app on [http://localhost:5000/](http://localhost:5000/)
+
+# Credits
+
+This project relies highly on [linked-gtfs](https://github.com/OpenTransport/linked-gtfs) and [gtfs-csv2rdf](https://github.com/OpenTransport/gtfs-csv2rdf) by [Pieter Colpaert](https://github.com/pietercolpaert).
