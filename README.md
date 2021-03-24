@@ -2,15 +2,35 @@
 
 # Installation
 
-Clone this repository and `cd` into it:
+* Clone this repository and `cd` into it:
 ```
 $ git clone https://github.com/charlyalizadeh/ESILV_WebSemantic
 $ cd ESILV_WebSemantic
 ```
+* Create a [virtual environment](https://docs.python.org/3/tutorial/venv.html) and activate it:
+```bash
+$ python3 -m venv .venv
+$ source .venv/bin/activate # On windows: .venv\Scripts\activate.bat
+```
+* Install the requirements
+```bash
+$ pip install -r requirements.txt
+```
 
 ## Fuseki
 
-### Create the triplestore
+### With `setup_fuseki.py`
+
+Note that you need to have a activated virtual environment with the packages in `requirements.txt` installed.
+Note also that this script setups fuseki with docker.
+```bash
+$ python setup_fuseki.py
+```
+
+You can also setup fuseki manually thanks to the following instructions:
+
+
+###  Manually
 
 The following instructions explain how to install fuseki with docker. [(Install without docker)](https://jena.apache.org/documentation/fuseki2/#download-fuseki)
 1. Pull the docker image:
@@ -46,20 +66,15 @@ $ unzip gtfsintriples.zip
 
 The fuseki triplestore is now configured to work with the flask application
 
+# Run the app
 
-## Flask
-
-1. Create a [virtual environment](https://docs.python.org/3/tutorial/venv.html) and activate it:
+* Activate your virtual environment
 ```bash
-$ python3 -m venv .venv
 $ source .venv/bin/activate # On windows: .venv\Scripts\activate.bat
 ```
-2. Install the requirements
+
+* Setup the environment variables
 ```bash
-$ pip install -r requirements.txt
-```
-3. Setup the environment variables
-```
 # Linux and MacOS:
 $ export FLASK_APP=flaskr
 $ export FLASK_ENV=development
@@ -72,8 +87,9 @@ $ export FLASK_ENV=development
 > $env:FLASK_APP = "flaskr"
 > $env:FLASK_ENV = "development"
 ```
-4. Run the flask app:
-```
+
+* Run the flask app:
+```bash
 $ flask run
 ```
 
