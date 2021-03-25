@@ -1,5 +1,6 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 from textwrap import dedent
+from .utils import float_to_str
 
 
 def get_prefixes():
@@ -98,21 +99,68 @@ def get_all_routes():
         results.append({'route': route, 'lat': lat, 'long': long, 'routeLongName': routeLongName, 'stopTime': stopTime})
     return results
 
-def get_stations_around_coord(lat, long):
-    max_lat = lat + 0.1
-    max_long = long + 0.1
-    lat, long, max_lat, max_long = str(lat), str(long), str(max_lat), str(max_long)    
+def get_route_dep_arr(dep_lat, dep_long, arr_lat, arr_long):
+    query = build_query("""
+    SELECT DISTINCT ?route ?routeLongName ?stopTime ?aTime ?dTime ?stopTime1 ?aTime1 ?dTime1 WHERE {
+    ?route a gtfs:Route .
+    OPTIONAL { ?route gtfs:longName ?routeLongName . }
+
+    ?trip a gtfs:Trip .  
+    ?trip gtfs:route ?route .
+  
+    ?stopTime a gtfs:StopTime . 
+    ?stopTime gtfs:trip ?trip . 
+    ?stopTime gtfs:stop ?stop . 
+
+   	?stopTime gtfs:arrivalTime ?aTime .
+  	?stopTime gtfs:arrivalTime ?dTime .
+  
+    ?stop a gtfs:Stop . 
+    ?stop geo:lat "%s" .
+    ?stop geo:long "%s" .
+  
+  ?stop1Time1 a gtfs:StopTime . 
+    ?stop1Time1 gtfs:trip ?trip . 
+    ?stop1Time1 gtfs:stop ?stop1 . 
+
+   	?stop1Time1 gtfs:arrivalTime ?aTime1 .
+  	?stop1Time1 gtfs:arrivalTime ?dTime1 .
+  
+    ?stop1 a gtfs:Stop . 
+    ?stop1 geo:lat "%s" .
+    ?stop1 geo:long "%s" .
+    
+    } GROUP BY ?route ?routeLongName ?stopTime  ?aTime ?dTime ?stopTime1  ?aTime1 ?dTime1
+    ORDER BY ?dTime
+    """%(float_to_str(dep_lat), float_to_str(dep_long), float_to_str(arr_lat), float_to_str(arr_long)))
+    query_results = query_fuseki(query)['results']['bindings']
+    results = []
+    for row in query_results:
+        route = row['route']['value']
+        routeLongName = row['routeLongName']['value']
+        stopTime = row['stopTime']['value']
+        dTime = row['dTime']['value']
+        aTime = row['aTime1']['value']
+        results.append({'route': route, 'aTime': aTime, 'dTime': dTime, 'routeLongName': routeLongName, 'stopTime': stopTime})
+    return results
+
+def get_stations_around_coord(lat, long, name):    
+    max_lat = lat + 0.05
+    max_long = long + 0.05
+    min_lat = lat - 0.05
+    min_long = long - 0.05
+    lat, long = float_to_str(lat), float_to_str(long)
+    min_lat, min_long, max_lat, max_long = float_to_str(min_lat), float_to_str(min_long), float_to_str(max_lat), float_to_str(max_long)    
     query = build_query("""SELECT * WHERE {
         ?stop a gtfs:Stop .
         ?stop foaf:name ?name .
         ?stop geo:lat ?lat . 
         ?stop geo:long ?long .
-        FILTER (?lat >= '%s' && ?lat <= '%s' && ?long >= '%s' && ?long <='%s') .		
-    }"""%(lat, max_lat, long, max_long) # latitude et longitude sont des string donc à parser pour récup celles qui nous intéressent
+        FILTER (?lat >= '%s' && ?lat <= '%s' && ?long >= '%s' && ?long <='%s' && ?lat != '%s' && ?long != '%s') .		
+    }"""%(min_lat, max_lat, min_long, max_long, lat, long)
     )
-    #print(query)
     query_results = query_fuseki(query)['results']['bindings']
-    results = []
+    results = [{'lat': lat, 'long': long, 'name': name}]
     for row in query_results:
         name = row['name']['value']
         stop = row['stop']['value']

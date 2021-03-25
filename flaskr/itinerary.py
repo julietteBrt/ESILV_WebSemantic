@@ -1,7 +1,7 @@
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
 )
-from .sparql_queries import get_all_routes, get_all_coordinates, get_all_stations, get_stations_around_coord
+from .sparql_queries import get_all_routes, get_all_coordinates, get_all_stations, get_stations_around_coord, get_route_dep_arr
 from .utils import get_distance, interSection
 import folium
 from folium.plugins import MarkerCluster
@@ -30,7 +30,6 @@ def data():
         long_aStation = 0.0
         dStation = form_data['dStation']
         aStation = form_data['aStation']
-        #print(form_data['aStation'])
         for i in range(len(coordinates)):
             if coordinates[i]['name'].replace("_", " ") == dStation:
                 lat_dStation = coordinates[i]['lat']
@@ -38,41 +37,40 @@ def data():
             if coordinates[i]['name'].replace("_", " ") == aStation:
                 lat_aStation = coordinates[i]['lat']
                 long_aStation = coordinates[i]['long']
-        #print(lat_dStation)
-        #print(lat_aStation)
-        journeys = {'dRouteLongName': [], 'aRouteLongName': []}
-        journeys1 = {'routeLongName': []}
-        trips = [] 
-        for i in range(len(routes)):
-            if routes[i]['lat'] == lat_dStation:
-                journeys['dRouteLongName'].append(routes[i]['routeLongName'].replace('_', ' '))
-            if routes[i]['lat'] == lat_aStation:
-                journeys['aRouteLongName'].append(routes[i]['routeLongName'].replace('_', ' '))
-        journeys1['routeLongName'] = np.unique(interSection(journeys['aRouteLongName'], journeys['dRouteLongName']))
-        for i in range(len(routes)):
-            if routes[i]['routeLongName'].replace('_', ' ') in journeys1['routeLongName']:
-                trips.append([routes[i]['routeLongName'].replace('_', ' '), routes[i]['route'], routes[i]['stopTime']])
+        trips = []
+        trips = (get_route_dep_arr(lat_dStation, long_dStation, lat_aStation, long_aStation))
         routeName = 'None'
         departure = 'None'
-        coordinates1 = [c for c in coordinates if get_distance((c['lat'], c['long']), (lat_dStation, long_dStation)) < 100]
-        #print(coordinates1)
-        coordinates2 = [c for c in coordinates if get_distance((c['lat'], c['long']), (lat_aStation, long_aStation)) < 100]
         map = folium.Map(location = [lat_dStation, long_dStation], zoom_start = 5, control_scale = True)
-        for c in coordinates1:
-            folium.Marker([c['lat'], c['long']], popup=f'<i>{c["name"].replace("_", " ")}</i>').add_to(map)
-        for c in coordinates2:
-            folium.Marker([c['lat'], c['long']], popup=f'<i>{c["name"].replace("_", " ")}</i>').add_to(map)
+        # Add marker on origin point
+        folium.Marker([lat_dStation, long_dStation], popup=dStation, icon=folium.Icon(color="red")).add_to(map)
+        folium.Marker([lat_aStation, long_aStation], popup=aStation).add_to(map)
+        tp = []
         if(trips):
-            routeName = trips[0][0]
-            departure = trips[0][2]
-            str2 = departure.split('/')
-            stopTime = str2[5]
-            departure = stopTime[-9:-4]
-            return render_template('itinerary/result.html', map=map._repr_html_(), origin = dStation, destination = aStation, routeName = routeName, departure = departure)
+            dtimes = []
+            for trip in trips:
+                if(trip['dTime'] not in dtimes): 
+                    dtimes.append(trip['dTime'])
+                    tmp_dict = {'routeLongName': trip['routeLongName'].replace('_', ' '), 'dTime': trip['dTime'], 'aTime': trip['aTime']}                   
+                    tp.append(tmp_dict)   
+            return render_template('itinerary/result.html', map=map._repr_html_(), origin = dStation, destination = aStation, trips = tp, routeName = routeName, departure = departure)
         else:
-            #print('hello')
-            print(get_stations_around_coord(lat_dStation, long_dStation))
-            return render_template('itinerary/substitute.html', origin = dStation, destination = aStation, routeName = routeName, departure = departure)
+            around_dep = get_stations_around_coord(lat_dStation, long_dStation, dStation)
+            around_arr = get_stations_around_coord(lat_aStation, long_aStation, aStation)
+            trips, dStation, aStation = get_trips_around(around_dep, around_arr)
+            map = folium.Map(location = [lat_dStation, long_dStation], zoom_start = 5, control_scale = True)
+            folium.Marker([lat_dStation, long_dStation], popup=dStation, icon=folium.Icon(color="red")).add_to(map)
+            folium.Marker([lat_aStation, long_aStation], popup=aStation).add_to(map)
+            dtimes = []
+            if(trips):
+                for t in trips:
+                    if (t['dTime'] not in dtimes):
+                        dtimes.append(t['dTime'])
+                        tmp_dict = {'routeLongName': t['routeLongName'].replace('_', ' '), 'dTime': t['dTime'], 'aTime': t['aTime']}                   
+                        tp.append(tmp_dict)
+                return render_template('itinerary/substitute.html', map=map._repr_html_(), origin = dStation, destination = aStation, trips = tp)
+            else:
+                return render_template('itinerary/no-result.html')
 
 
 @bp.route('/search', methods=['POST'])
@@ -92,16 +90,11 @@ def search():
     return resp
 
 
-#http://127.0.0.1:5000/planning/coverage/48.864902612482986/2.3429293408796634/10000
-"""@bp.route('/coverage/<float:lat>/<float:long>/<int:radius>', methods = ['GET'])
-def planning(lat, long, radius):
-    routes = get_all_routes()
-    origin_coord = [lat, long]
-    coordinates = get_all_coordinates()
-    coordinates = [c for c in coordinates if get_distance((c['lat'], c['long']), (lat, long)) < radius]
-    map = folium.Map(location=origin_coord, zoom_start=1, control_scale=True)
-    for c in coordinates:
-        folium.Marker([c['lat'], c['long']], popup=f'<i>{c["name"].replace("_", " ")}</i>').add_to(map)
-    #return render_template('map/sncf-stops.html', map=map._repr_html_())
-    return render_template('planning/planning.html', map=map._repr_html_(), routes = routes)
-"""
+def get_trips_around(around_dep, around_arr):
+    for i in range(len(around_arr)):
+        for j in range(len(around_dep)):
+            trips = (get_route_dep_arr(around_dep[j]['lat'], around_dep[j]['long'], around_arr[i]['lat'], around_arr[i]['long']))
+            if(trips):
+                dStation = around_dep[j]['name'].replace('_', ' ')
+                aStation= around_arr[i]['name'].replace('_', ' ')
+                return trips, dStation, aStation
