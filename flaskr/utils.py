@@ -31,3 +31,8 @@ def find_point(address):
     if location is None:
         return
     return (location.latitude, location.longitude)
+
+def interSection(arr1, arr2): # finding common elements
+    # using filter method to find identical values via lambda function
+    values = list(filter(lambda x: x in arr1, arr2))
+    return values

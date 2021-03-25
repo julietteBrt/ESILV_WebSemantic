@@ -25,8 +25,8 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import map, home
+    from . import map, home, itinerary
     app.register_blueprint(map.bp)
     app.register_blueprint(home.bp)
-
+    app.register_blueprint(itinerary.bp)
     return app
