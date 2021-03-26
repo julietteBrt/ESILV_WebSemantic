@@ -10,7 +10,6 @@ import numpy as np
 import json
 
 bp = Blueprint('itinerary', __name__, url_prefix='/itinerary')
-routes = get_all_routes()
 coordinates = get_all_coordinates()
 
 #http://127.0.0.1:5000/itinerary/

@@ -168,3 +168,54 @@ def get_stations_around_coord(lat, long, name):
         long = row['long']['value']
         results.append({'stop': stop, 'lat': lat, 'long': long, 'name': name})
     return results
+
+def get_departures_around(lat, long, limit = 10):
+    max_lat = lat + 0.05
+    max_long = long + 0.05
+    min_lat = lat - 0.05
+    min_long = long - 0.05
+    min_lat, min_long, max_lat, max_long = float_to_str(min_lat), float_to_str(min_long), float_to_str(max_lat), float_to_str(max_long)
+    query = build_query("""
+    SELECT DISTINCT ?routeLongName ?dTime ?name ?lat ?long  WHERE {
+    ?route a gtfs:Route .
+    OPTIONAL { ?route gtfs:longName ?routeLongName . }
+
+    ?trip a gtfs:Trip .  
+    ?trip gtfs:route ?route .
+  
+    ?stopTime a gtfs:StopTime . 
+    ?stopTime gtfs:trip ?trip . 
+    ?stopTime gtfs:stop ?stop . 
+
+   	?stopTime gtfs:arrivalTime ?aTime .
+  	?stopTime gtfs:arrivalTime ?dTime .
+  	
+    ?stop a gtfs:Stop . 
+    ?stop geo:lat ?lat .
+    ?stop geo:long ?long .
+    ?stop foaf:name ?name .
+  
+    ?stop1Time1 a gtfs:StopTime . 
+    ?stop1Time1 gtfs:trip ?trip . 
+    ?stop1Time1 gtfs:stop ?stop1 . 
+
+   	?stop1Time1 gtfs:arrivalTime ?aTime1 .
+  	?stop1Time1 gtfs:arrivalTime ?dTime1 .
+  
+    ?stop1 a gtfs:Stop . 
+    ?stop1 foaf:name ?name1 .
+  
+  FILTER( ?lat >='%s' && ?lat <= '%s' && ?long >= '%s' && ?long<= '%s') .
+    } GROUP BY ?routeLongName ?dTime ?name ?lat ?long
+    ORDER BY ?dTime
+	LIMIT %s""")%(min_lat, max_lat, min_long, max_long, str(limit))
+    query_results = query_fuseki(query)['results']['bindings']
+    results = []
+    for row in query_results:
+        name = row['name']['value']
+        routeLongName = row['routeLongName']['value']
+        lat = row['lat']['value']
+        long = row['long']['value']
+        dtime = row['dTime']['value']
+        results.append({'routeLongName': routeLongName, 'lat': lat, 'long': long, 'name': name, 'dTime': dtime})
+    return results
